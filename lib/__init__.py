@@ -24,14 +24,25 @@
 import torch
 import os
 import soundfile as sf
+import mne
 
 PATH_INBETWEEN = "spoclab/users/szhao/EEG/data/"
+DEFAULT_CHANNELS = [
+    'FC6', 'FT8', 'C5', 'CP3', 'P3', 'T7', 'CP5', 'C3', 'CP1', 'C4'
+]
 
 def load_audio(fname):
     audio, r = sf.read(fname)
     print(r)
     assert r == 16000
     return audio
+
+def read_emg(emg_path, channels_only=[]):
+    emg_raw = mne.io.read_raw_cnt(emg_path, preload=True).load_data()
+    if channels_only:
+        emg_raw.pick_channels(channels_only)
+    return emg_raw.get_data()
+    
 
 class KaraOneDataset(torch.utils.data.Dataset):
     def __init__(
@@ -55,8 +66,26 @@ class KaraOneDataset(torch.utils.data.Dataset):
                             for id_ in self.ids]
 
     def __getitem__(self, i):
+        base_dir = os.path.join(
+            self.root_dir,
+            PATH_INBETWEEN,
+            self.pts[0])
+        base_dir_files = os.listdir(base_dir)
+
+        try:
+            cnt_file = list(filter(lambda x: x.endswith(".cnt"), base_dir_files))[0]
+        except Exception as e:
+            print("Error loading .cnt file:", e)
+
+        emg_path = os.path.join(
+            self.root_dir,
+            PATH_INBETWEEN,
+            self.pts[0],
+            cnt_file)
+
         data = {
             "label": self.labels[i],
-            "audio": load_audio(self.audios[i])
+            "audio": load_audio(self.audios[i]),
+            "emg":   read_emg(emg_path)
         }
         return data
