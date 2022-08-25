@@ -23,11 +23,15 @@
 
 import torch
 import os
+import soundfile as sf
 
 PATH_INBETWEEN = "spoclab/users/szhao/EEG/data/"
 
 def load_audio(fname):
-    pass
+    audio, r = sf.read(fname)
+    print(r)
+    assert r == 16000
+    return audio
 
 class KaraOneDataset(torch.utils.data.Dataset):
     def __init__(
@@ -37,20 +41,22 @@ class KaraOneDataset(torch.utils.data.Dataset):
         self.root_dir = root_dir
         self.pts = pts
 
-        labels_path = \
+        info_dir = \
             os.path.join(
                 root_dir,
                 PATH_INBETWEEN,
                 pts[0],
-                f"kinect_data/{pts[0]}_p.txt")
+                f"kinect_data/")
 
-        with open(labels_path) as f:
-            labels = f.read().split("\n")
-            self.labels = labels
+        with open(os.path.join(info_dir, f"{pts[0]}_p.txt")) as f:
+            self.labels = f.read().split("\n")
+            self.ids = range(len(self.labels))
+            self.audios = [os.path.join(info_dir, f"{id_}.wav")
+                            for id_ in self.ids]
 
     def __getitem__(self, i):
         data = {
             "label": self.labels[i],
-            "audio": load_audio
+            "audio": load_audio(self.audios[i])
         }
         return data
