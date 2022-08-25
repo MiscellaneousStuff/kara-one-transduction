@@ -15,6 +15,10 @@ vocalised phonemic and single-word prompts.
 
 ## Dataset Details
 
+### General Notes
+
+- *epoch_inds.mat*: Indices for different trials. Should be 132 for most participants.
+
 ### Epochs
 
 EEG epoching is a procedure where specific time-windows are extracted
