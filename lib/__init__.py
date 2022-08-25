@@ -21,11 +21,17 @@
 # SOFTWARE.
 """Kara One helper library."""
 
-import torch
 import os
-import soundfile as sf
-import mne
 import glob
+from time import time
+
+import torch
+import mne
+
+import soundfile as sf
+import scipy.io as sio
+
+from .extra import *
 
 PATH_INBETWEEN = "spoclab/users/szhao/EEG/data/"
 DEFAULT_CHANNELS = [
@@ -45,14 +51,32 @@ def read_emg(emg_path, channels_only=[], drop_channels=DROP_CHANNELS):
     emg_raw.drop_channels(DROP_CHANNELS)
     if channels_only:
         emg_raw.pick_channels(channels_only)
-    return emg_raw.get_data()
+    return emg_raw
     
+def calculate_features(eeg_data, epoch_inds, prompts, condition_inds, prompts_list):
+    offset = int(eeg_data.info["sfreq"] / 2)
+    X = []
+    for i, prompt in enumerate(prompts["prompts"][0]):
+        t0 = time()
+        if prompt[0] in prompts_list:
+            start = epoch_inds[condition_inds][0][i][0][0] + offset
+            end   = epoch_inds[condition_inds][0][i][0][1]
+            channel_set = []
+            for idx, ch in enumerate(eeg_data.ch_names):
+                epoch = eeg_data[idx][0][0][start:end]
+                channel_set.extend(fast_feat_array(epoch, ch))
+            X.append(channel_set)
+        print("Calc: %0.3fs" % (time() - t0), i, prompt)
+    return X
+
 
 class KaraOneDataset(torch.utils.data.Dataset):
     def __init__(
             self,
             root_dir,
-            pts=("MM05",)):
+            pts=("MM05",),
+            raw=False):
+
         self.root_dir = root_dir
         self.pts = pts
 
@@ -69,25 +93,42 @@ class KaraOneDataset(torch.utils.data.Dataset):
             self.audios = [os.path.join(info_dir, f"{id_}.wav")
                             for id_ in self.ids]
 
-    def __getitem__(self, i):
         base_dir = os.path.join(
             self.root_dir,
             PATH_INBETWEEN,
             self.pts[0])
-        base_dir_files = os.listdir(base_dir)
 
-        cnt_files = glob.glob(os.path.join(f"{base_dir}", "*.cnt"))
-        print(os.path.exists(cnt_files[0]))
+        for f in glob.glob(
+            os.path.join(f"{base_dir}", "all_features_simple.mat")):
+            prompts_to_extract = sio.loadmat(f)
 
-        emg_path = os.path.join(
-            self.root_dir,
-            PATH_INBETWEEN,
-            self.pts[0],
-            os.path.normpath(cnt_files[0]))
+        self.prompts = prompts = prompts_to_extract['all_features'][0,0]
+        print("prompts:", self.prompts)
 
+        for f in glob.glob(
+            os.path.join(f"{base_dir}", "epoch_inds.mat")):
+            self.epoch_inds = epoch_inds = \
+                sio.loadmat(f, variable_names=('clearing_inds', 'thinking_inds'))
+
+        if not raw:
+            for f in glob.glob(
+                os.path.join(f"{base_dir}", "*.cnt")):
+                emg_data = read_emg(f)
+
+        self.emg_data = emg_data
+
+        t0 = time()
+
+        self.Y_s = Y_s = self.prompts["prompts"][0]
+        self.X_s = calculate_features(emg_data, epoch_inds, prompts, "clearing_inds", Y_s)
+
+        print("Calc: %0.3fs" % (time() - t0))
+
+    def __getitem__(self, i):
         data = {
-            "label": self.labels[i],
+            "label": self.Y_s[i],
             "audio": load_audio(self.audios[i]),
-            "emg":   read_emg(emg_path)
+            "emg":   self.X_s[i]
         }
+
         return data
