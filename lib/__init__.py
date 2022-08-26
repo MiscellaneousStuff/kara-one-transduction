@@ -53,10 +53,12 @@ def read_emg(emg_path, channels_only=[], drop_channels=DROP_CHANNELS):
         emg_raw.pick_channels(channels_only)
     return emg_raw
     
-def calculate_features(eeg_data, epoch_inds, prompts, condition_inds, prompts_list):
+def calculate_features(eeg_data, epoch_inds, prompts, condition_inds, prompts_list, max_prompts=0):
     offset = int(eeg_data.info["sfreq"] / 2)
     X = []
-    for i, prompt in enumerate(prompts["prompts"][0]):
+    max_prompts = max_prompts if max_prompts else len(prompts["prompts"][0])
+    print("max_prompts:", max_prompts)
+    for i, prompt in enumerate(prompts["prompts"][0][0:max_prompts]):
         t0 = time()
         if prompt[0] in prompts_list:
             start = epoch_inds[condition_inds][0][i][0][0] + offset
@@ -75,7 +77,8 @@ class KaraOneDataset(torch.utils.data.Dataset):
             self,
             root_dir,
             pts=("MM05",),
-            raw=False):
+            raw=True,
+            max_prompts=0):
 
         self.root_dir = root_dir
         self.pts = pts
@@ -103,14 +106,14 @@ class KaraOneDataset(torch.utils.data.Dataset):
             prompts_to_extract = sio.loadmat(f)
 
         self.prompts = prompts = prompts_to_extract['all_features'][0,0]
-        print("prompts:", self.prompts)
+        print("prompts:", len(self.prompts["prompts"][0]))
 
         for f in glob.glob(
             os.path.join(f"{base_dir}", "epoch_inds.mat")):
             self.epoch_inds = epoch_inds = \
                 sio.loadmat(f, variable_names=('clearing_inds', 'thinking_inds'))
 
-        if not raw:
+        if raw:
             for f in glob.glob(
                 os.path.join(f"{base_dir}", "*.cnt")):
                 emg_data = read_emg(f)
@@ -119,8 +122,16 @@ class KaraOneDataset(torch.utils.data.Dataset):
 
         t0 = time()
 
-        self.Y_s = Y_s = self.prompts["prompts"][0]
-        self.X_s = calculate_features(emg_data, epoch_inds, prompts, "clearing_inds", Y_s)
+        max_prompts = max_prompts if max_prompts else len(self.prompts["prompts"][0])
+        self.Y_s = Y_s = self.prompts["prompts"][0][0:max_prompts]
+        print("len(self.Y_s):", self.Y_s)
+        self.X_s = calculate_features(
+            emg_data,
+            epoch_inds,
+            prompts,
+            "clearing_inds",
+            Y_s,
+            max_prompts)
 
         print("Calc: %0.3fs" % (time() - t0))
 
@@ -132,3 +143,6 @@ class KaraOneDataset(torch.utils.data.Dataset):
         }
 
         return data
+    
+    def __len__(self):
+        return len(self.Y_s)
