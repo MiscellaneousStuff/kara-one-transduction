@@ -117,7 +117,8 @@ class KaraOneDataset(torch.utils.data.Dataset):
         for f in glob.glob(
             os.path.join(f"{base_dir}", "epoch_inds.mat")):
             self.epoch_inds = epoch_inds = \
-                sio.loadmat(f, variable_names=('clearing_inds', 'thinking_inds'))
+                sio.loadmat(f, variable_names=
+                    ('clearing_inds', 'thinking_inds', 'speaking_inds'))
 
         if raw:
             for f in glob.glob(
@@ -149,6 +150,15 @@ class KaraOneDataset(torch.utils.data.Dataset):
             max_prompts,
             start_idx)
 
+        self.X_s_vocal = calculate_features(
+            emg_data,
+            epoch_inds,
+            prompts,
+            "speaking_inds",
+            Y_s,
+            max_prompts,
+            start_idx)
+
         """
         self.Y_s = np.hstack([
             np.repeat("rest",   len(self.X_s) / 2),
@@ -157,6 +167,7 @@ class KaraOneDataset(torch.utils.data.Dataset):
 
         self.X_s_rest   = np.asarray(self.X_s_rest)
         self.X_s_active = np.asarray(self.X_s_active)
+        self.X_s_vocal  = np.asarray(self.X_s_vocal)
 
         if scale_data:
             self.X_s_rest["feature_value"] = \
@@ -165,6 +176,9 @@ class KaraOneDataset(torch.utils.data.Dataset):
             self.X_s_active["feature_value"] = \
                 StandardScaler().fit_transform(
                     self.X_s_active["feature_value"])
+            self.X_s_vocal["feature_value"] = \
+                StandardScaler().fit_transform(
+                    self.X_s_vocal["feature_value"])
 
         # self.X_s_rest   = self.X_s_rest["feature_value"]
         # self.X_s_active = self.X_s_active["feature_value"]
@@ -183,7 +197,8 @@ class KaraOneDataset(torch.utils.data.Dataset):
             "label":      self.Y_s[i],
             "audio":      load_audio(self.audios[i]),
             "emg_rest":   self.X_s_rest["feature_value"][i],
-            "emg_active": self.X_s_active["feature_value"][i]
+            "emg_active": self.X_s_active["feature_value"][i],
+            "emg_vocal":  self.X_s_vocal["feature_value"][i]
         }
 
         return data
