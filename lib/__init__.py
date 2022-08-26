@@ -19,7 +19,11 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-"""Kara One helper library."""
+"""Kara One helper library.
+
+This library has been heavily adapated from:
+https://github.com/wjbladek/SilentSpeechClassifier/blob/
+b7f5ffd2a314ee14678a3e141d7addbd5320b5d0/SSC.py#L284"""
 
 import os
 import glob
