@@ -75,11 +75,12 @@ def read_emg(emg_path, channels_only=[], drop_channels=DROP_CHANNELS):
     return emg_raw
     
 def calculate_features(eeg_data, epoch_inds, prompts, condition_inds, prompts_list, end_idx=0, start_idx=0):
-    offset = int(eeg_data.info["sfreq"] / 2)
-    X     = []
-    X_raw = []
+    offset  = int(eeg_data.info["sfreq"] / 2)
+    X       = []
+    X_raw   = []
     end_idx = end_idx if end_idx else len(prompts["prompts"][0])
     # print("end_idx:", end_idx)
+
     max_raw_size = 0
     for i, prompt in enumerate(prompts["prompts"][0][start_idx:end_idx]):
         t0 = time()
@@ -92,18 +93,23 @@ def calculate_features(eeg_data, epoch_inds, prompts, condition_inds, prompts_li
                 epoch = eeg_data[idx][0][0][start:end]
                 if epoch.shape[0] > max_raw_size:
                     max_raw_size = epoch.shape[0]
-                print(ch, epoch)
-                print(ch, "shape:", epoch.shape)
+                #print(ch, epoch)
+                #print(ch, "shape:", epoch.shape)
                 channel_set.extend(fast_feat_array(epoch, ch))
                 channel_set_raw.extend(epoch)
             # print("channel count:", len(eeg_data.ch_names), len(channel_set))
             X.append(channel_set)
             X_raw.append(channel_set_raw)
         print("Calc: %0.3fs" % (time() - t0), i, prompt)
-    print("EMG FEAT AND RAW:", condition_inds, len(X[0]), len(X_raw[0]))
-    print("BEFORE:", X_raw)
-    X_raw = np.reshape(X_raw, (62, max_raw_size))
-    print("AFTER:", X_raw)
+
+    new_X_raw = []
+
+    for cur in X_raw:
+        seq_len = int(len(cur) / 62)
+        new_cur = np.reshape(cur, (62, seq_len))
+        new_X_raw.append(new_cur)
+    X_raw = new_X_raw
+
     return X, X_raw
 
 
@@ -163,6 +169,7 @@ class KaraOneDataset(torch.utils.data.Dataset):
         end_idx = end_idx if end_idx else len(self.prompts["prompts"][0])
         self.Y_s = Y_s = self.prompts["prompts"][0][start_idx:end_idx]
         print("Actual Length:", len(self.prompts["prompts"][0]))
+
         self.X_s_rest, self.X_s_rest_raw = calculate_features(
             emg_data,
             epoch_inds,
@@ -190,19 +197,9 @@ class KaraOneDataset(torch.utils.data.Dataset):
             end_idx,
             start_idx)
 
-        """
-        self.Y_s = np.hstack([
-            np.repeat("rest",   len(self.X_s) / 2),
-            np.repeat("active", len(self.X_s) / 2)])
-        """
-
         self.X_s_rest   = np.asarray(self.X_s_rest)
         self.X_s_active = np.asarray(self.X_s_active)
         self.X_s_vocal  = np.asarray(self.X_s_vocal)
-
-        self.X_s_rest_raw   = np.asarray(self.X_s_rest_raw)
-        self.X_s_active_raw = np.asarray(self.X_s_active_raw)
-        self.X_s_vocal_raw  = np.asarray(self.X_s_vocal_raw)
 
         if scale_data:
             self.X_s_rest["feature_value"] = \
@@ -215,21 +212,11 @@ class KaraOneDataset(torch.utils.data.Dataset):
                 StandardScaler().fit_transform(
                     self.X_s_vocal["feature_value"])
 
-        # self.X_s_rest   = self.X_s_rest["feature_value"]
-        # self.X_s_active = self.X_s_active["feature_value"]
-
         self.Y_s = np.hstack(self.Y_s)
-
-        # print("FINAL X AND Y TYPES:", type(self.X_s_rest), type(self.Y_s))
-        # print("FINAL X AND Y SHAPES:", self.X_s_rest.shape, self.Y_s.shape)
-        
-        print("self.X_s_vocal:", self.X_s_vocal)
 
         print("Calc: %0.3fs" % (time() - t0))
 
     def __getitem__(self, i):
-        # print("getitem both x shapes:", self.X_s_rest[i].shape, self.X_s_active[i].shape)
-
         audio_raw, audio_features = load_audio(self.audios[i])
 
         data = {
@@ -242,8 +229,8 @@ class KaraOneDataset(torch.utils.data.Dataset):
             "emg_vocal":      self.X_s_vocal["feature_value"][i],
 
             "emg_rest_raw":   self.X_s_rest_raw,
-            "emg_active_raw": self.X_s_active_raw,
-            "emg_vocal_raw":  self.X_s_vocal_raw,
+            "emg_active_raw": self.X_s_active_raw[i],
+            "emg_vocal_raw":  self.X_s_vocal_raw[i],
         }
 
         return data
