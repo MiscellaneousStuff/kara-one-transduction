@@ -31,6 +31,7 @@ from time import time
 
 import torch
 import mne
+import librosa
 
 import soundfile as sf
 import scipy.io as sio
@@ -45,39 +46,65 @@ DEFAULT_CHANNELS = [
 DROP_CHANNELS = [
     'CB1', 'CB2', 'VEO', 'HEO', 'EKG', 'EMG', 'Trigger']
 
-def load_audio(fname):
+def load_audio(fname,
+               n_mel_channels=128,
+               filter_length=512,
+               win_length=432,
+               hop_length=160):
     audio, r = sf.read(fname)
-    print(r)
     assert r == 16000
-    return audio
+
+    audio_features = librosa.feature.melspectrogram(
+        audio,
+        sr=r,
+        n_mels=n_mel_channels,
+        center=False,
+        n_fft=filter_length,
+        win_length=win_length,
+        hop_length=hop_length).T
+    audio_features = np.log(audio_features + 1e-5)
+
+    return audio, audio_features
 
 def read_emg(emg_path, channels_only=[], drop_channels=DROP_CHANNELS):
     print("PATH:", emg_path)
     emg_raw = mne.io.read_raw_cnt(emg_path, preload=True) # .load_data()
-    emg_raw.drop_channels(DROP_CHANNELS)
+    emg_raw.drop_channels(drop_channels)
     if channels_only:
         emg_raw.pick_channels(channels_only)
     return emg_raw
     
-def calculate_features(eeg_data, epoch_inds, prompts, condition_inds, prompts_list, max_prompts=0, start_idx=0):
+def calculate_features(eeg_data, epoch_inds, prompts, condition_inds, prompts_list, end_idx=0, start_idx=0):
     offset = int(eeg_data.info["sfreq"] / 2)
-    X = []
-    max_prompts = max_prompts if max_prompts else len(prompts["prompts"][0])
-    # print("max_prompts:", max_prompts)
-    for i, prompt in enumerate(prompts["prompts"][0][start_idx:max_prompts]):
+    X     = []
+    X_raw = []
+    end_idx = end_idx if end_idx else len(prompts["prompts"][0])
+    # print("end_idx:", end_idx)
+    max_raw_size = 0
+    for i, prompt in enumerate(prompts["prompts"][0][start_idx:end_idx]):
         t0 = time()
         if prompt[0] in prompts_list:
             start = epoch_inds[condition_inds][0][i][0][0] + offset
             end   = epoch_inds[condition_inds][0][i][0][1]
             channel_set = []
+            channel_set_raw = []
             for idx, ch in enumerate(eeg_data.ch_names):
                 epoch = eeg_data[idx][0][0][start:end]
-                # print(ch, "shape:", epoch.shape)
+                if epoch.shape[0] > max_raw_size:
+                    max_raw_size = epoch.shape[0]
+                print(ch, epoch)
+                print(ch, "shape:", epoch.shape)
                 channel_set.extend(fast_feat_array(epoch, ch))
+                channel_set_raw.extend(epoch)
             # print("channel count:", len(eeg_data.ch_names), len(channel_set))
             X.append(channel_set)
+            X_raw.append(channel_set_raw)
         print("Calc: %0.3fs" % (time() - t0), i, prompt)
-    return X
+    print("EMG FEAT AND RAW:", condition_inds, len(X[0]), len(X_raw[0]))
+    print("BEFORE:", X_raw)
+    X_raw = np.reshape(X_raw, (62, max_raw_size))
+    print("AFTER:", X_raw)
+    return X, X_raw
 
 
 class KaraOneDataset(torch.utils.data.Dataset):
@@ -87,7 +114,7 @@ class KaraOneDataset(torch.utils.data.Dataset):
             pts=("MM05",),
             raw=True,
             start_idx=0,
-            max_prompts=0,
+            end_idx=0,
             scale_data=False):
 
         self.root_dir = root_dir
@@ -133,34 +160,34 @@ class KaraOneDataset(torch.utils.data.Dataset):
 
         t0 = time()
 
-        max_prompts = max_prompts if max_prompts else len(self.prompts["prompts"][0])
-        self.Y_s = Y_s = self.prompts["prompts"][0][start_idx:max_prompts]
-        # print("len(self.Y_s):", self.Y_s)
-        self.X_s_rest = calculate_features(
+        end_idx = end_idx if end_idx else len(self.prompts["prompts"][0])
+        self.Y_s = Y_s = self.prompts["prompts"][0][start_idx:end_idx]
+        print("Actual Length:", len(self.prompts["prompts"][0]))
+        self.X_s_rest, self.X_s_rest_raw = calculate_features(
             emg_data,
             epoch_inds,
             prompts,
             "clearing_inds",
             Y_s,
-            max_prompts,
+            end_idx,
             start_idx)
 
-        self.X_s_active = calculate_features(
+        self.X_s_active, self.X_s_active_raw = calculate_features(
             emg_data,
             epoch_inds,
             prompts,
             "thinking_inds",
             Y_s,
-            max_prompts,
+            end_idx,
             start_idx)
 
-        self.X_s_vocal = calculate_features(
+        self.X_s_vocal, self.X_s_vocal_raw = calculate_features(
             emg_data,
             epoch_inds,
             prompts,
             "speaking_inds",
             Y_s,
-            max_prompts,
+            end_idx,
             start_idx)
 
         """
@@ -172,6 +199,10 @@ class KaraOneDataset(torch.utils.data.Dataset):
         self.X_s_rest   = np.asarray(self.X_s_rest)
         self.X_s_active = np.asarray(self.X_s_active)
         self.X_s_vocal  = np.asarray(self.X_s_vocal)
+
+        self.X_s_rest_raw   = np.asarray(self.X_s_rest_raw)
+        self.X_s_active_raw = np.asarray(self.X_s_active_raw)
+        self.X_s_vocal_raw  = np.asarray(self.X_s_vocal_raw)
 
         if scale_data:
             self.X_s_rest["feature_value"] = \
@@ -191,18 +222,28 @@ class KaraOneDataset(torch.utils.data.Dataset):
 
         # print("FINAL X AND Y TYPES:", type(self.X_s_rest), type(self.Y_s))
         # print("FINAL X AND Y SHAPES:", self.X_s_rest.shape, self.Y_s.shape)
+        
+        print("self.X_s_vocal:", self.X_s_vocal)
 
         print("Calc: %0.3fs" % (time() - t0))
 
     def __getitem__(self, i):
         # print("getitem both x shapes:", self.X_s_rest[i].shape, self.X_s_active[i].shape)
 
+        audio_raw, audio_features = load_audio(self.audios[i])
+
         data = {
-            "label":      self.Y_s[i],
-            "audio":      load_audio(self.audios[i]),
-            "emg_rest":   self.X_s_rest["feature_value"][i],
-            "emg_active": self.X_s_active["feature_value"][i],
-            "emg_vocal":  self.X_s_vocal["feature_value"][i]
+            "label":          self.Y_s[i],
+            "audio_raw":      audio_raw,
+            "audio_feats":    audio_features,
+            
+            "emg_rest":       self.X_s_rest["feature_value"][i],
+            "emg_active":     self.X_s_active["feature_value"][i],
+            "emg_vocal":      self.X_s_vocal["feature_value"][i],
+
+            "emg_rest_raw":   self.X_s_rest_raw,
+            "emg_active_raw": self.X_s_active_raw,
+            "emg_vocal_raw":  self.X_s_vocal_raw,
         }
 
         return data

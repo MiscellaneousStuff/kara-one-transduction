@@ -5,6 +5,8 @@ from scipy import signal
 # Taken from:
 # https://github.com/wjbladek/SilentSpeechClassifier/blob/master/features.py
 
+
+
 class freq_dom_feat:
 
     def __init__(self, sequence):
