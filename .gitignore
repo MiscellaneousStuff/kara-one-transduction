@@ -131,3 +131,6 @@ dmypy.json
 
 # Ignore a single participants dataset
 p/
+
+# Ignore example .wav files (and in the future, predictions)
+.wav
