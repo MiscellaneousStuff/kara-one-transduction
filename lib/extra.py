@@ -3,9 +3,17 @@ from scipy import stats
 from scipy import signal
 
 # Taken from:
+# https://github.com/dgaddy/silent_speech/blob/1c91d5cddd7a3f39414ed77d3a80189f4e515c4d/data_utils.py
+
+def double_average(x):
+    assert len(x.shape) == 1
+    f = np.ones(9)/9.0
+    v = np.convolve(x, f, mode='same')
+    w = np.convolve(v, f, mode='same')
+    return w
+
+# Taken from:
 # https://github.com/wjbladek/SilentSpeechClassifier/blob/master/features.py
-
-
 
 class freq_dom_feat:
 
