@@ -15,8 +15,10 @@ vocalised phonemic and single-word prompts.
 
 ## Progress
 
-- [x] Overfit on a single example
+- [x] Overfit on a single example (EEG imagined speech)
    - 1 layer, 128 dim LSTM network works extremely well
+- [x] Overfit on a single example (EEG vocalised speech)
+   - 1 layer, 128 dim LSTM network interestingly doesn't work well
 
 ## Dataset Details
 
