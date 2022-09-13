@@ -13,6 +13,11 @@ vocalised phonemic and single-word prompts.
 
 [Dataset](http://www.cs.toronto.edu/~complingweb/data/karaOne/karaOne.html)
 
+## Progress
+
+- [x] Overfit on a single example
+   - 1 layer, 128 dim LSTM network works extremely well
+
 ## Dataset Details
 
 ### Epochs
