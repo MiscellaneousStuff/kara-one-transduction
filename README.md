@@ -15,15 +15,20 @@ vocalised phonemic and single-word prompts.
 
 ## Progress
 
+Below milestones are for MM05:
 - [x] Overfit on a single example (EEG imagined speech)
-   - 1 layer, 128 dim LSTM network doesn't work well
+   - 1 layer, 128 dim Bi-LSTM network doesn't work well
      (most likely due to misalignment between imagined EEG signals and audio targets,
      this is a major issue for a transduction network)
 - [x] Overfit on a single example (EEG vocalised speech)
-   - 1 layer, 128 dim LSTM network works well
+   - 1 layer, 128 dim Bi-LSTM network works well
      (seems like the temporal alignment between the vocal EEG signals and the audio
      recordings make it easy to synthesize audio features from parallel vocal EEG signals)
-
+- [x] Overfit on all /tiy/ examples
+    - 1 layer, 64 dim Bi-LSTM network works well
+      (reducing the hidden dim compared to single samples prevents gradient explosion
+       earlier in training. not sure why this happens when increasing task complexity...)
+       
 ## Dataset Details
 
 ### Epochs
