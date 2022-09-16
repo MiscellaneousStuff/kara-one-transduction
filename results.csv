@@ -23,7 +23,7 @@ this using Kara One and transduction method"
 16/09/2022,13:12:25,~6min,15,Overfit,/piy/,Imagined,4.178165436,0.2785443624,64,1,1,6000,5.00E-04,Plosive,"Try plosives, and see if they are the hardest to reconstruct"
 16/09/2022,13:33:05,~7min,15,Overfit,/tiy/,Vocal,4.35878849,0.2905858994,64,1,1,7000,5.00E-04,Plosive,"Try plosives, and see if they are the hardest to reconstruct"
 16/09/2022,13:45:50,~6min,15,Overfit,/tiy/,Imagined,2.923929453,0.1949286302,64,1,1,6000,5.00E-04,Plosive,"Try plosives, and see if they are the hardest to reconstruct"
-16/09/2022,,,30,Overfit,"/piy/, /tiy/",Vocal,,,64,1,1,,5.00E-04,Plosive,"Combined /piy/ and /tiy/, see how well model overfits to multiple plosives"
+16/09/2022,17:34:17,,30,Overfit,"/piy/, /tiy/",Vocal,,,64,1,1,,5.00E-04,Plosive,"Combined /piy/ and /tiy/, see how well model overfits to multiple plosives"
 16/09/2022,,,30,Overfit,"/piy/, /tiy/",Imagined,,,64,1,1,,5.00E-04,Plosive,"Combined /piy/ and /tiy/, see how well model overfits to multiple plosives"
 16/09/2022,,,30,Overfit,"/iy/, /uw/",Vocal,,,64,1,1,,5.00E-04,Vowel,"Combined /piy/ and /tiy/, see how well model overfits to multiple vowels"
 16/09/2022,,,30,Overfit,"/iy/, /uw/",Imagined,,,64,1,1,,5.00E-04,Vowel,"Combined /piy/ and /tiy/, see how well model overfits to multiple vowels"
@@ -33,5 +33,5 @@ this using Kara One and transduction method"
 16/09/2022,15:32:11,~43min,105,Overfit,All non words,Imagined,40.76186752,0.3882082621,64,1,1,6000,5.00E-04,Phoneme,See how well the model overfits across all phonemes
 16/09/2022,14:49:09,~10min,60,Overfit,All words,Vocal,60.85971451,1.014328575,64,1,1,2000,5.00E-04,Word,See how well the model overfits across all words
 16/09/2022,15:10:46,~10min,60,Overfit,All words,Imagined,63.68844223,1.061474037,64,1,1,2000,5.00E-04,Word,See how well the model overfits across all words
-16/09/2022,16:47:00,,165,Overfit,Entire MM05 dataset,Vocal,,,64,1,1,,5.00E-04,Any,Overfit to the entire dataset
+16/09/2022,16:47:00,~27min,165,Overfit,Entire MM05 dataset,Vocal,109.1516037,0.6615248709,64,1,1,2000,5.00E-04,Any,Overfit to the entire dataset
 16/09/2022,,,165,Overfit,Entire MM05 dataset,Imagined,,,64,1,1,,5.00E-04,Any,Overfit to the entire dataset
