@@ -1,0 +1,21 @@
+Date,Time,Run Time,Instances,Training Type,Tokens,EEG Type,Train Loss (MSE),Mean Train Loss (MSE),LSTM Dim,LSTM Layers,Random Seed,Epochs,LR,Notes
+16/09/2022,07:56:24,~6min,15,Overfit,/tiy/,Imagined,2.923929453,0.1949286302,64,1,1,6000,5.00E-04,Initial samples looked similar enough for model to overfit to easily
+16/09/2022,08:15:13,~4min,15,Overfit,/m/,Vocal,2.287476063,0.1524984042,64,1,1,4000,5.00E-04,"FEIS Paper shows that utterances varying by nasality are easiest to
+synthesize for imagined EEG state, will now confirm/refute
+this using Kara One and transduction method"
+16/09/2022,08:40:17,~10min,15,Overfit,/m/,Imagined,5.043329239,0.3362219493,64,1,1,10000,5.00E-04,
+16/09/2022,08:41:51,~4min,15,Overfit,/n/,Vocal,2.803813219,0.1869208813,64,1,1,4000,5.00E-04,"FEIS Paper shows that utterances varying by nasality are easiest to
+synthesize for imagined EEG state, will now confirm/refute
+this using Kara One and transduction method"
+16/09/2022,08:51:47,~6min,15,Overfit,/n/,Imagined,2.088138819,0.1392092546,64,1,1,6000,5.00E-04,
+16/09/2022,09:13:06,~4min,15,Overfit,gnaw,Vocal,10.48680782,0.6991205215,64,1,1,4000,5.00E-04,Try synthesizing an entire word (with nasal phoneme)
+16/09/2022,09:53:31,~5min,15,Overfit,gnaw,Imagined,15.43546391,1.029030927,64,1,1,5000,5.00E-04,Try synthesizing an entire word (with nasal phoneme)
+16/09/2022,10:13:57,~12min,30,Overfit,"/m/, /n/",Vocal,8.151338577,0.2717112859,64,1,1,6000,5.00E-04,"Synthesize /n/ and /m/, see how well model overfits to multiple phonemes"
+16/09/2022,10:39:10,~16min,30,Overfit,"/m/, /n/",Imagined,9.436719894,0.3145573298,64,1,1,8000,1.00E-04,"Synthesize /n/ and /m/, see how well model overfits to multiple phonemes"
+16/09/2022,10:58:12,~16min,30,Overfit,"/m/, /n/",Imagined,9.406472206,0.3135490735,64,1,1,8000,5.00E-04,"Synthesize /n/ and /m/, see how well model overfits to multiple phonemes"
+16/09/2022,12:01:10,~6min,15,Overfit,pat,Vocal,14.25828934,0.9505526225,64,1,1,6000,5.00E-04,"Try another word, maybe word length is relevant?"
+16/09/2022,12:12:15,~5min,15,Overfit,pat,Imagined,14.57359695,0.9715731303,64,1,1,5000,5.00E-04,"Try another word, maybe word length is relevant?"
+16/09/2022,12:16:19,,15,Overfit,/iy/,Vocal,,,64,1,1,,5.00E-04,"Try a vowel, as they're also supposedly easier to synthesize"
+16/09/2022,,,15,Overfit,/iy/,Imagined,,,64,1,1,,5.00E-04,"Try a vowel, as they're also supposedly easier to synthesize"
+16/09/2022,,,15,Overfit,/uw/,Vocal,,,64,1,1,,5.00E-04,"Try another vowel, as they're also supposedly easier to synthesize"
+16/09/2022,,,15,Overfit,/uw/,Imagined,,,64,1,1,,5.00E-04,"Try another vowel, as they're also supposedly easier to synthesize"
