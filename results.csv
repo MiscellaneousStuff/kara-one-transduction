@@ -31,7 +31,7 @@ this using Kara One and transduction method"
 16/09/2022,18:35:19,~7min,30,Overfit,"/piy/, /tiy/",Imagined,14.01697731,0.467232577,64,1,1,2500,1.00E-03,None,Plosive,"Combined /piy/ and /tiy/, see how well model overfits to multiple plosives"
 17/09/2022,-,-,30,Overfit,"/piy/, /tiy/",Imagined,-,-,64,1,1,-,5.00E-04,None,Plosive,"Combined /piy/ and /tiy/, see how well model overfits to multiple plosives"
 16/09/2022,22:07:52,~4min,30,Overfit,"/iy/, /uw/",Vocal,11.56677246,0.385559082,64,1,1,5500,5.00E-04,None,Vowel,"Combined /piy/ and /tiy/, see how well model overfits to multiple vowels"
-16/09/2022,,,30,Overfit,"/iy/, /uw/",Imagined,,,64,1,1,,5.00E-04,None,Vowel,"Combined /piy/ and /tiy/, see how well model overfits to multiple vowels"
+16/09/2022,22:14:05,~15min,30,Overfit,"/iy/, /uw/",Imagined,12.43607807,0.4145359357,64,1,1,7500,5.00E-04,None,Vowel,"Combined /piy/ and /tiy/, see how well model overfits to multiple vowels"
 16/09/2022,14:15:29,~18min,105,Overfit,All non-words,Vocal,40.8433342,0.3889841352,64,1,1,2500,5.00E-04,None,Phoneme,See how well the model overfits across all phonemes
 16/09/2022,15:32:11,~43min,105,Overfit,All non words,Imagined,40.76186752,0.3882082621,64,1,1,6000,5.00E-04,None,Phoneme,See how well the model overfits across all phonemes
 16/09/2022,14:49:09,~10min,60,Overfit,All words,Vocal,60.85971451,1.014328575,64,1,1,2000,5.00E-04,None,Word,See how well the model overfits across all words
