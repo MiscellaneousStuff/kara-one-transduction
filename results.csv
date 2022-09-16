@@ -32,6 +32,6 @@ this using Kara One and transduction method"
 16/09/2022,14:15:29,~18min,105,Overfit,All non-words,Vocal,40.8433342,0.3889841352,64,1,1,2500,5.00E-04,Phoneme,See how well the model overfits across all phonemes
 16/09/2022,,,105,Overfit,All non words,Imagined,,,64,1,1,,5.00E-04,Phoneme,See how well the model overfits across all phonemes
 16/09/2022,14:49:09,~10min,60,Overfit,All words,Vocal,60.85971451,1.014328575,64,1,1,2000,5.00E-04,Word,See how well the model overfits across all words
-16/09/2022,15:10:46,,60,Overfit,All words,Imagined,,,64,1,1,,5.00E-04,Word,See how well the model overfits across all words
+16/09/2022,15:10:46,~10min,60,Overfit,All words,Imagined,63.68844223,1.061474037,64,1,1,2000,5.00E-04,Word,See how well the model overfits across all words
 16/09/2022,,,165,Overfit,Entire MM05 dataset,Vocal,,,64,1,1,,5.00E-04,Any,Overfit to the entire dataset
 16/09/2022,,,165,Overfit,Entire MM05 dataset,Imagined,,,64,1,1,,5.00E-04,Any,Overfit to the entire dataset
