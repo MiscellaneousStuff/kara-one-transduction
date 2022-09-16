@@ -1,4 +1,4 @@
-Date,Time,Run Time,Instances,Training Type,Tokens,EEG Type,Train Loss (MSE),Mean Train Loss (MSE),LSTM Dim,LSTM Layers,Random Seed,Epochs,LR,Token Type,Notes
+Date,Time,Run Time,Instances,Training Type,Tokens,EEG Type,Train Loss (MSE),Mean Train Loss (MSE),BiLSTM Dim,LSTM Layers,Random Seed,Epochs,LR,Token Type,Notes
 16/09/2022,07:56:24,~6min,15,Overfit,/tiy/,Imagined,2.923929453,0.1949286302,64,1,1,6000,5.00E-04,Plosive,Initial samples looked similar enough for model to overfit to easily
 16/09/2022,08:15:13,~4min,15,Overfit,/m/,Vocal,2.287476063,0.1524984042,64,1,1,4000,5.00E-04,Nasal,"FEIS Paper shows that utterances varying by nasality are easiest to
 synthesize for imagined EEG state, will now confirm/refute
@@ -18,4 +18,8 @@ this using Kara One and transduction method"
 16/09/2022,12:16:19,~6min,15,Overfit,/iy/,Vocal,5.785900593,0.3857267062,64,1,1,6000,5.00E-04,Vowel,"Try a vowel, as they're also supposedly easier to synthesize than plosives"
 16/09/2022,12:38:17,~6min,15,Overfit,/iy/,Imagined,5.302194118,0.3534796079,64,1,1,6000,5.00E-04,Vowel,"Try a vowel, as they're also supposedly easier to synthesize than plosives"
 16/09/2022,12:41:05,~5min,15,Overfit,/uw/,Vocal,4.573994637,0.3049329758,64,1,1,5000,5.00E-04,Vowel,"Try another vowel, as they're also supposedly easier to synthesize"
-16/09/2022,12:45:59,,15,Overfit,/uw/,Imagined,,,64,1,1,,5.00E-04,Vowel,"Try another vowel, as they're also supposedly easier to synthesize"
+16/09/2022,12:45:59,~4min,15,Overfit,/uw/,Imagined,7.25981617,0.4839877446,64,1,1,4000,5.00E-04,Vowel,"Try another vowel, as they're also supposedly easier to synthesize"
+16/09/2022,13:08:13,~6min,15,Overfit,/piy/,Vocal,4.546952724,0.3031301816,64,1,1,6000,5.00E-04,Plosive,"Try plosives, and see if they are the hardest to reconstruct"
+16/09/2022,13:12:25,~6min,15,Overfit,/piy/,Imagined,4.178165436,0.2785443624,64,1,1,6000,5.00E-04,Plosive,"Try plosives, and see if they are the hardest to reconstruct"
+16/09/2022,13:33:05,~7min,15,Overfit,/tiy/,Vocal,4.35878849,0.2905858994,64,1,1,7000,5.00E-04,Plosive,"Try plosives, and see if they are the hardest to reconstruct"
+16/09/2022,13:45:50,~6min,15,Overfit,/tiy/,Imagined,2.923929453,0.1949286302,64,1,1,6000,5.00E-04,Plosive,"Try plosives, and see if they are the hardest to reconstruct"
