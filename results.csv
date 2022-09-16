@@ -28,9 +28,8 @@ this using Kara One and transduction method"
 16/09/2022,13:33:05,~7min,15,Overfit,/tiy/,Vocal,4.35878849,0.2905858994,64,1,1,7000,5.00E-04,None,Plosive,"Try plosives, and see if they are the hardest to reconstruct"
 16/09/2022,13:45:50,~6min,15,Overfit,/tiy/,Imagined,2.923929453,0.1949286302,64,1,1,6000,5.00E-04,None,Plosive,"Try plosives, and see if they are the hardest to reconstruct"
 16/09/2022,17:34:17,~16min,30,Overfit,"/piy/, /tiy/",Vocal,10.96796513,0.3655988375,64,1,1,8000,5.00E-04,None,Plosive,"Combined /piy/ and /tiy/, see how well model overfits to multiple plosives"
-16/09/2022,18:59:49,,30,Overfit,"/piy/, /tiy/",Vocal,,,64,1,1,8000,1.00E-03,"StepLR(gamma=.5, step=2k)",Plosive,"Combined /piy/ and /tiy/, see how well model overfits to multiple plosives"
 16/09/2022,18:35:19,~7min,30,Overfit,"/piy/, /tiy/",Imagined,14.01697731,0.467232577,64,1,1,2500,1.00E-03,None,Plosive,"Combined /piy/ and /tiy/, see how well model overfits to multiple plosives"
-16/09/2022,18:35:19,~8min,30,Overfit,"/piy/, /tiy/",Imagined,13.74773693,0.4582578977,64,1,1,3000,1.00E-03,"StepLR(gamma=.5, step=2k)",Plosive,"Combined /piy/ and /tiy/, see how well model overfits to multiple plosives"
+16/09/2022,,,30,Overfit,"/piy/, /tiy/",Imagined,,,64,1,1,,5.00E-04,None,Plosive,"Combined /piy/ and /tiy/, see how well model overfits to multiple plosives"
 16/09/2022,,,30,Overfit,"/iy/, /uw/",Vocal,,,64,1,1,,5.00E-04,None,Vowel,"Combined /piy/ and /tiy/, see how well model overfits to multiple vowels"
 16/09/2022,,,30,Overfit,"/iy/, /uw/",Imagined,,,64,1,1,,5.00E-04,None,Vowel,"Combined /piy/ and /tiy/, see how well model overfits to multiple vowels"
 16/09/2022,,,60,Overfit,"/m/, /n/, /piy/, /tiy",Vocal,,,64,1,1,,5.00E-04,None,"Plosive, Vowel",See how well model overfits to multiple phoneme types
@@ -40,4 +39,4 @@ this using Kara One and transduction method"
 16/09/2022,14:49:09,~10min,60,Overfit,All words,Vocal,60.85971451,1.014328575,64,1,1,2000,5.00E-04,None,Word,See how well the model overfits across all words
 16/09/2022,15:10:46,~10min,60,Overfit,All words,Imagined,63.68844223,1.061474037,64,1,1,2000,5.00E-04,None,Word,See how well the model overfits across all words
 16/09/2022,16:47:00,~27min,165,Overfit,Entire MM05 dataset,Vocal,109.1516037,0.6615248709,64,1,1,2000,5.00E-04,None,Any,Overfit to the entire dataset
-16/09/2022,,,165,Overfit,Entire MM05 dataset,Imagined,,,64,1,1,,5.00E-04,None,Any,Overfit to the entire dataset
+16/09/2022,19:19:14,~94min,165,Overfit,Entire MM05 dataset,Imagined,113.6934891,0.6890514489,64,1,1,7000,5.00E-04,None,Any,Overfit to the entire dataset
