@@ -1,40 +1,40 @@
-16/09/2022,08:51:47,~6min,15,Overfit,/n/,Imagined,2.088138819,0.1392092546,64,1,1,6000,5.00E-04,None,Nasal,"FEIS Paper shows that utterances varying by nasality are easiest to
+Date,Time,Run Time,Instances,Training Type,Tokens,EEG Type,Train Loss (MSE),Mean Train Loss (MSE),BiLSTM Dim,LSTM Layers,Random Seed,Epochs,Starting LR,Scheduler,Token Type,Notes
+16/09/2022,07:56:24,~6min,15,Overfit,/tiy/,Imagined,2.923929453,0.1949286302,64,1,1,6000,5.00E-04,None,Plosive,Initial samples looked similar enough for model to overfit to easily
+16/09/2022,08:15:13,~4min,15,Overfit,/m/,Vocal,2.287476063,0.1524984042,64,1,1,4000,5.00E-04,None,Nasal,"FEIS Paper shows that utterances varying by nasality are easiest to
 synthesize for imagined EEG state, will now confirm/refute
 this using Kara One and transduction method"
-16/09/2022,08:15:13,~4min,15,Overfit,/m/,Vocal,2.287476063,0.1524984042,64,1,1,4000,5.00E-04,None,Nasal,"FEIS Paper shows that utterances varying by nasality are easiest to
+16/09/2022,08:40:17,~10min,15,Overfit,/m/,Imagined,5.043329239,0.3362219493,64,1,1,10000,5.00E-04,None,Nasal,"FEIS Paper shows that utterances varying by nasality are easiest to
 synthesize for imagined EEG state, will now confirm/refute
 this using Kara One and transduction method"
 16/09/2022,08:41:51,~4min,15,Overfit,/n/,Vocal,2.803813219,0.1869208813,64,1,1,4000,5.00E-04,None,Nasal,"FEIS Paper shows that utterances varying by nasality are easiest to
 synthesize for imagined EEG state, will now confirm/refute
 this using Kara One and transduction method"
-16/09/2022,07:56:24,~6min,15,Overfit,/tiy/,Imagined,2.923929453,0.1949286302,64,1,1,6000,5.00E-04,None,Plosive,Initial samples looked similar enough for model to overfit to easily
-16/09/2022,13:45:50,~6min,15,Overfit,/tiy/,Imagined,2.923929453,0.1949286302,64,1,1,6000,5.00E-04,None,Plosive,"Try plosives, and see if they are the hardest to reconstruct"
-16/09/2022,10:13:57,~12min,30,Overfit,"/m/, /n/",Vocal,8.151338577,0.2717112859,64,1,1,6000,5.00E-04,None,Nasal,"Synthesize /n/ and /m/, see how well model overfits to multiple phonemes"
-16/09/2022,13:12:25,~6min,15,Overfit,/piy/,Imagined,4.178165436,0.2785443624,64,1,1,6000,5.00E-04,None,Plosive,"Try plosives, and see if they are the hardest to reconstruct"
-16/09/2022,13:33:05,~7min,15,Overfit,/tiy/,Vocal,4.35878849,0.2905858994,64,1,1,7000,5.00E-04,None,Plosive,"Try plosives, and see if they are the hardest to reconstruct"
-16/09/2022,13:08:13,~6min,15,Overfit,/piy/,Vocal,4.546952724,0.3031301816,64,1,1,6000,5.00E-04,None,Plosive,"Try plosives, and see if they are the hardest to reconstruct"
-16/09/2022,12:41:05,~5min,15,Overfit,/uw/,Vocal,4.573994637,0.3049329758,64,1,1,5000,5.00E-04,None,Vowel,"Try another vowel, as they're also supposedly easier to synthesize"
-16/09/2022,10:58:12,~16min,30,Overfit,"/m/, /n/",Imagined,9.406472206,0.3135490735,64,1,1,8000,5.00E-04,None,Nasal,"Synthesize /n/ and /m/, see how well model overfits to multiple phonemes"
-16/09/2022,10:39:10,~16min,30,Overfit,"/m/, /n/",Imagined,9.436719894,0.3145573298,64,1,1,8000,1.00E-04,None,Nasal,"Synthesize /n/ and /m/, see how well model overfits to multiple phonemes"
-16/09/2022,08:40:17,~10min,15,Overfit,/m/,Imagined,5.043329239,0.3362219493,64,1,1,10000,5.00E-04,None,Nasal,"FEIS Paper shows that utterances varying by nasality are easiest to
+16/09/2022,08:51:47,~6min,15,Overfit,/n/,Imagined,2.088138819,0.1392092546,64,1,1,6000,5.00E-04,None,Nasal,"FEIS Paper shows that utterances varying by nasality are easiest to
 synthesize for imagined EEG state, will now confirm/refute
 this using Kara One and transduction method"
-16/09/2022,12:38:17,~6min,15,Overfit,/iy/,Imagined,5.302194118,0.3534796079,64,1,1,6000,5.00E-04,None,Vowel,"Try a vowel, as they're also supposedly easier to synthesize than plosives"
-16/09/2022,17:34:17,~16min,30,Overfit,"/piy/, /tiy/",Vocal,10.96796513,0.3655988375,64,1,1,8000,5.00E-04,None,Plosive,"Combined /piy/ and /tiy/, see how well model overfits to multiple plosives"
-17/09/2022,07:48:56,~14min,30,Overfit,"/piy/, /tiy/",Imagined,11.3291378,0.3776379267,64,1,1,6000,5.00E-04,None,Plosive,"Combined /piy/ and /tiy/, see how well model overfits to multiple plosives"
-16/09/2022,22:07:52,~4min,30,Overfit,"/iy/, /uw/",Vocal,11.56677246,0.385559082,64,1,1,5500,5.00E-04,None,Vowel,"Combined /piy/ and /tiy/, see how well model overfits to multiple vowels"
-16/09/2022,12:16:19,~6min,15,Overfit,/iy/,Vocal,5.785900593,0.3857267062,64,1,1,6000,5.00E-04,None,Vowel,"Try a vowel, as they're also supposedly easier to synthesize than plosives"
-16/09/2022,15:32:11,~43min,105,Overfit,All non words,Imagined,40.76186752,0.3882082621,64,1,1,6000,5.00E-04,None,Phoneme,See how well the model overfits across all phonemes
-16/09/2022,14:15:29,~18min,105,Overfit,All non-words,Vocal,40.8433342,0.3889841352,64,1,1,2500,5.00E-04,None,Phoneme,See how well the model overfits across all phonemes
-16/09/2022,22:14:05,~15min,30,Overfit,"/iy/, /uw/",Imagined,12.43607807,0.4145359357,64,1,1,7500,5.00E-04,None,Vowel,"Combined /piy/ and /tiy/, see how well model overfits to multiple vowels"
-16/09/2022,18:35:19,~7min,30,Overfit,"/piy/, /tiy/",Imagined,14.01697731,0.467232577,64,1,1,2500,1.00E-03,None,Plosive,"Combined /piy/ and /tiy/, see how well model overfits to multiple plosives"
-16/09/2022,12:45:59,~4min,15,Overfit,/uw/,Imagined,7.25981617,0.4839877446,64,1,1,4000,5.00E-04,None,Vowel,"Try another vowel, as they're also supposedly easier to synthesize"
-16/09/2022,16:47:00,~27min,165,Overfit,Entire MM05 dataset,Vocal,109.1516037,0.6615248709,64,1,1,2000,5.00E-04,None,Any,Overfit to the entire dataset
-16/09/2022,19:19:14,~94min,165,Overfit,Entire MM05 dataset,Imagined,113.6934891,0.6890514489,64,1,1,7000,5.00E-04,None,Any,Overfit to the entire dataset
 16/09/2022,09:13:06,~4min,15,Overfit,gnaw,Vocal,10.48680782,0.6991205215,64,1,1,4000,5.00E-04,None,"Nasal, Vowel",Try synthesizing an entire word (with nasal phoneme)
+16/09/2022,09:53:31,~5min,15,Overfit,gnaw,Imagined,15.43546391,1.029030927,64,1,1,5000,5.00E-04,None,"Nasal, Vowel",Try synthesizing an entire word (with nasal phoneme)
+16/09/2022,10:13:57,~12min,30,Overfit,"/m/, /n/",Vocal,8.151338577,0.2717112859,64,1,1,6000,5.00E-04,None,Nasal,"Synthesize /n/ and /m/, see how well model overfits to multiple phonemes"
+16/09/2022,10:39:10,~16min,30,Overfit,"/m/, /n/",Imagined,9.436719894,0.3145573298,64,1,1,8000,1.00E-04,None,Nasal,"Synthesize /n/ and /m/, see how well model overfits to multiple phonemes"
+16/09/2022,10:58:12,~16min,30,Overfit,"/m/, /n/",Imagined,9.406472206,0.3135490735,64,1,1,8000,5.00E-04,None,Nasal,"Synthesize /n/ and /m/, see how well model overfits to multiple phonemes"
 16/09/2022,12:01:10,~6min,15,Overfit,pat,Vocal,14.25828934,0.9505526225,64,1,1,6000,5.00E-04,None,Plosive,"Try another word, maybe word length is relevant?"
 16/09/2022,12:12:15,~5min,15,Overfit,pat,Imagined,14.57359695,0.9715731303,64,1,1,5000,5.00E-04,None,Plosive,"Try another word, maybe word length is relevant?"
+16/09/2022,12:16:19,~6min,15,Overfit,/iy/,Vocal,5.785900593,0.3857267062,64,1,1,6000,5.00E-04,None,Vowel,"Try a vowel, as they're also supposedly easier to synthesize than plosives"
+16/09/2022,12:38:17,~6min,15,Overfit,/iy/,Imagined,5.302194118,0.3534796079,64,1,1,6000,5.00E-04,None,Vowel,"Try a vowel, as they're also supposedly easier to synthesize than plosives"
+16/09/2022,12:41:05,~5min,15,Overfit,/uw/,Vocal,4.573994637,0.3049329758,64,1,1,5000,5.00E-04,None,Vowel,"Try another vowel, as they're also supposedly easier to synthesize"
+16/09/2022,12:45:59,~4min,15,Overfit,/uw/,Imagined,7.25981617,0.4839877446,64,1,1,4000,5.00E-04,None,Vowel,"Try another vowel, as they're also supposedly easier to synthesize"
+16/09/2022,13:08:13,~6min,15,Overfit,/piy/,Vocal,4.546952724,0.3031301816,64,1,1,6000,5.00E-04,None,Plosive,"Try plosives, and see if they are the hardest to reconstruct"
+16/09/2022,13:12:25,~6min,15,Overfit,/piy/,Imagined,4.178165436,0.2785443624,64,1,1,6000,5.00E-04,None,Plosive,"Try plosives, and see if they are the hardest to reconstruct"
+16/09/2022,13:33:05,~7min,15,Overfit,/tiy/,Vocal,4.35878849,0.2905858994,64,1,1,7000,5.00E-04,None,Plosive,"Try plosives, and see if they are the hardest to reconstruct"
+16/09/2022,13:45:50,~6min,15,Overfit,/tiy/,Imagined,2.923929453,0.1949286302,64,1,1,6000,5.00E-04,None,Plosive,"Try plosives, and see if they are the hardest to reconstruct"
+16/09/2022,17:34:17,~16min,30,Overfit,"/piy/, /tiy/",Vocal,10.96796513,0.3655988375,64,1,1,8000,5.00E-04,None,Plosive,"Combined /piy/ and /tiy/, see how well model overfits to multiple plosives"
+16/09/2022,18:35:19,~7min,30,Overfit,"/piy/, /tiy/",Imagined,14.01697731,0.467232577,64,1,1,2500,1.00E-03,None,Plosive,"Combined /piy/ and /tiy/, see how well model overfits to multiple plosives"
+17/09/2022,07:48:56,~14min,30,Overfit,"/piy/, /tiy/",Imagined,11.3291378,0.3776379267,64,1,1,6000,5.00E-04,None,Plosive,"Combined /piy/ and /tiy/, see how well model overfits to multiple plosives"
+16/09/2022,22:07:52,~4min,30,Overfit,"/iy/, /uw/",Vocal,11.56677246,0.385559082,64,1,1,5500,5.00E-04,None,Vowel,"Combined /piy/ and /tiy/, see how well model overfits to multiple vowels"
+16/09/2022,22:14:05,~15min,30,Overfit,"/iy/, /uw/",Imagined,12.43607807,0.4145359357,64,1,1,7500,5.00E-04,None,Vowel,"Combined /piy/ and /tiy/, see how well model overfits to multiple vowels"
+16/09/2022,14:15:29,~18min,105,Overfit,All non-words,Vocal,40.8433342,0.3889841352,64,1,1,2500,5.00E-04,None,Phoneme,See how well the model overfits across all phonemes
+16/09/2022,15:32:11,~43min,105,Overfit,All non words,Imagined,40.76186752,0.3882082621,64,1,1,6000,5.00E-04,None,Phoneme,See how well the model overfits across all phonemes
 16/09/2022,14:49:09,~10min,60,Overfit,All words,Vocal,60.85971451,1.014328575,64,1,1,2000,5.00E-04,None,Word,See how well the model overfits across all words
-16/09/2022,09:53:31,~5min,15,Overfit,gnaw,Imagined,15.43546391,1.029030927,64,1,1,5000,5.00E-04,None,"Nasal, Vowel",Try synthesizing an entire word (with nasal phoneme)
 16/09/2022,15:10:46,~10min,60,Overfit,All words,Imagined,63.68844223,1.061474037,64,1,1,2000,5.00E-04,None,Word,See how well the model overfits across all words
-Date,Time,Run Time,Instances,Training Type,Tokens,EEG Type,Train Loss (MSE),Mean Train Loss (MSE),BiLSTM Dim,LSTM Layers,Random Seed,Epochs,Starting LR,Scheduler,Token Type,Notes
+16/09/2022,16:47:00,~27min,165,Overfit,Entire MM05 dataset,Vocal,109.1516037,0.6615248709,64,1,1,2000,5.00E-04,None,Any,Overfit to the entire dataset
+16/09/2022,19:19:14,~94min,165,Overfit,Entire MM05 dataset,Imagined,113.6934891,0.6890514489,64,1,1,7000,5.00E-04,None,Any,Overfit to the entire dataset
