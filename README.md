@@ -24,17 +24,21 @@ Below milestones are for MM05:
    - 1 layer, 128 dim Bi-LSTM network works well
      (seems like the temporal alignment between the vocal EEG signals and the audio
      recordings make it easy to synthesize audio features from parallel vocal EEG signals)
-- [x] Overfit on all /tiy/ examples
+- [x] Overfit on all /tiy/ examples (EEG vocalised speech)
     - 1 layer, 64 dim Bi-LSTM network works well
       (reducing the hidden dim compared to single samples prevents gradient explosion
        earlier in training. not sure why this happens when increasing task complexity...)
-- [x] Overfit on all /m/ and /n/ examples       
+- [x] Overfit on all /m/ and /n/ examples (EEG vocalised speech)
     - 1 layer, 64 dim Bi-LSTM network works somewhat well
       (the temporal alignment of the signals is roughly correct however, the specific
        pitches of the utterances are much flatter than the original signal. This
        could be improved using better low level feature detectors, such as ResNet
        blocks as done in
        [An Improved Model for Voicing Slient Speech](https://arxiv.org/abs/2106.01933)).
+- [x] Generalise on /n/ examples (EEG imagined speech)
+   - 1 layer, 64-dim Bi-LSTM network needs improvement
+     (the amplitude and mel spectrogram are predicted correctly, but the temporal
+      alignment, duration and pitch waveform are incorrect)
 
 ## Dataset Details
 
