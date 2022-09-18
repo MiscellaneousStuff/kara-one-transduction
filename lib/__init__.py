@@ -157,7 +157,8 @@ def get_semg_feats(eeg_data, stft=False, debug=False):
     frame_features = np.concatenate(frame_features, axis=1)
     return frame_features.astype(np.float32)
 
-def calculate_features(eeg_data, epoch_inds, prompts, condition_inds, prompts_list, end_idx=0, start_idx=0):
+def calculate_features(eeg_data, epoch_inds, prompts, condition_inds, prompts_list, \
+                       original_feats=False, end_idx=0, start_idx=0):
     offset  = int(eeg_data.info["sfreq"] / 2)
     X       = []
     X_raw   = []
@@ -177,7 +178,8 @@ def calculate_features(eeg_data, epoch_inds, prompts, condition_inds, prompts_li
                     max_raw_size = epoch.shape[0]
                 #print(ch, epoch)
                 #print(ch, "shape:", epoch.shape)
-                channel_set.extend(fast_feat_array(epoch, ch))
+                if original_feats:
+                    channel_set.extend(fast_feat_array(epoch, ch))
                 channel_set_raw.extend(epoch)
             # print("channel count:", len(eeg_data.ch_names), len(channel_set))
             X.append(channel_set)
@@ -210,12 +212,16 @@ class KaraOneDataset(torch.utils.data.Dataset):
             root_dir,
             pts=("MM05",),
             raw=True,
+            original_feats=False,
             start_idx=0,
             end_idx=0,
             scale_data=False):
 
         self.root_dir = root_dir
         self.pts = pts
+        self.start_idx = start_idx
+        self.end_idx = end_idx
+        self.original_feats = original_feats
 
         info_dir = \
             os.path.join(
@@ -261,6 +267,7 @@ class KaraOneDataset(torch.utils.data.Dataset):
         self.Y_s = Y_s = self.prompts["prompts"][0][start_idx:end_idx]
         print("Actual Length:", len(self.prompts["prompts"][0]))
 
+        """
         self.X_s_rest, self.X_s_rest_raw, self.X_s_rest_feats = \
             calculate_features(
                 eeg_data,
@@ -268,8 +275,10 @@ class KaraOneDataset(torch.utils.data.Dataset):
                 prompts,
                 "clearing_inds",
                 Y_s,
+                original_feats,
                 end_idx,
                 start_idx)
+        """
 
         self.X_s_active, self.X_s_active_raw, self.X_s_active_feats = \
             calculate_features(
@@ -278,6 +287,7 @@ class KaraOneDataset(torch.utils.data.Dataset):
                 prompts,
                 "thinking_inds",
                 Y_s,
+                original_feats,
                 end_idx,
                 start_idx)
 
@@ -288,17 +298,20 @@ class KaraOneDataset(torch.utils.data.Dataset):
                 prompts,
                 "speaking_inds",
                 Y_s,
+                original_feats,
                 end_idx,
                 start_idx)
 
-        self.X_s_rest   = np.asarray(self.X_s_rest)
+        # self.X_s_rest   = np.asarray(self.X_s_rest)
         self.X_s_active = np.asarray(self.X_s_active)
         self.X_s_vocal  = np.asarray(self.X_s_vocal)
 
         if scale_data:
+            """
             self.X_s_rest["feature_value"] = \
                 StandardScaler().fit_transform(
                     self.X_s_rest["feature_value"])
+            """
             self.X_s_active["feature_value"] = \
                 StandardScaler().fit_transform(
                     self.X_s_active["feature_value"])
@@ -311,25 +324,34 @@ class KaraOneDataset(torch.utils.data.Dataset):
         print("Calc: %0.3fs" % (time() - t0))
 
     def __getitem__(self, i):
-        audio_raw, audio_features = load_audio(self.audios[i])
+        original_feats = self.original_feats
+
+        audio_raw, audio_features = \
+            load_audio(self.audios[self.start_idx:self.end_idx][i])
+
+        print(self.start_idx, self.end_idx, self.audios[self.start_idx:self.end_idx][i])
 
         data = {
             "label":          self.Y_s[i],
             "audio_raw":      audio_raw,
             "audio_feats":    audio_features,
-            
-            "eeg_rest":       self.X_s_rest["feature_value"][i],
-            "eeg_active":     self.X_s_active["feature_value"][i],
-            "eeg_vocal":      self.X_s_vocal["feature_value"][i],
 
-            "eeg_rest_raw":   self.X_s_rest_raw[i],
+            # "eeg_rest_raw":   self.X_s_rest_raw[i],
             "eeg_active_raw": self.X_s_active_raw[i],
             "eeg_vocal_raw":  self.X_s_vocal_raw[i],
 
-            "eeg_rest_feats":   self.X_s_rest_feats[i],
+            # "eeg_rest_feats":   self.X_s_rest_feats[i],
             "eeg_active_feats": self.X_s_active_feats[i],
             "eeg_vocal_feats":  self.X_s_vocal_feats[i],
         }
+
+        if original_feats:
+            original_paper_feats = {
+                # "eeg_rest":       self.X_s_rest["feature_value"][i],
+                "eeg_active":     self.X_s_active["feature_value"][i],
+                "eeg_vocal":      self.X_s_vocal["feature_value"][i]
+            }
+            data = {**data, **original_paper_feats}
 
         return data
     
