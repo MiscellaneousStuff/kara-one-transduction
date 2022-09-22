@@ -39,7 +39,7 @@ Below milestones are for MM05:
    - 1 layer, 64-dim Bi-LSTM network needs improvement
      (the amplitude and mel spectrogram are predicted correctly, but the temporal
       alignment, duration and pitch waveform are incorrect)
-- [x] Generalise on /m/ examples (EEG imagined speech)
+- [x] Generalise on /m/ examples (EEG vocal speech)
    - 2 layer, 128 dim Bi-LSTM network works well
      (temporal alignment, duration and pitch waveform issues from before are resolved
       by using an LSTM network with a larger hidden dim. Using multiple LSTM layers
@@ -48,6 +48,11 @@ Below milestones are for MM05:
       so there is rationale for using multiple LSTM layers for this purpose.
       ([paper 1](https://pubmed.ncbi.nlm.nih.gov/22361076/),
       [paper 2](https://www.sciencedirect.com/science/article/abs/pii/S1053811905025140)))
+- [x] Transformers on /m/ examples (EEG vocal speech)
+    - 2 heads, 8 layers TransformerEncoder works very well
+      (maps vocal EEG to audio features very early during training and with very high
+       temporal and spatial accuracy. Last thing after this would be using ResNet blocks
+       to learn EEG features end-to-end )
 
 ## Dataset Details
 

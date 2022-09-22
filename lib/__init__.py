@@ -165,9 +165,13 @@ def calculate_features(eeg_data, epoch_inds, prompts, condition_inds, prompts_li
     end_idx = end_idx if end_idx else len(prompts["prompts"][0])
 
     max_raw_size = 0
+    print("calc feat prompts:", len(prompts["prompts"][0]))
+    print(len(prompts["prompts"][0][start_idx:end_idx]))
+    print("end_idx:", end_idx)
+
     for i, prompt in enumerate(prompts["prompts"][0][start_idx:end_idx]):
-        t0 = time()
         if prompt[0] in prompts_list:
+            t0 = time()
             start = epoch_inds[condition_inds][0][i][0][0] + offset
             end   = epoch_inds[condition_inds][0][i][0][1]
             channel_set = []
@@ -184,7 +188,7 @@ def calculate_features(eeg_data, epoch_inds, prompts, condition_inds, prompts_li
             # print("channel count:", len(eeg_data.ch_names), len(channel_set))
             X.append(channel_set)
             X_raw.append(channel_set_raw)
-        print("Calc: %0.3fs" % (time() - t0), i, prompt)
+            print("Calc: %0.3fs" % (time() - t0), i, prompt)
 
     new_X_raw = []
     X_feats = []
@@ -207,21 +211,26 @@ def calculate_features(eeg_data, epoch_inds, prompts, condition_inds, prompts_li
 
 
 class KaraOneDataset(torch.utils.data.Dataset):
+    num_features = 62 * 5 # (electrodes * features_per_electrode)
+
     def __init__(
             self,
             root_dir,
             pts=("MM05",),
             raw=True,
-            original_feats=False,
             start_idx=0,
             end_idx=0,
-            scale_data=False):
-
+            n_mel_channels=128,
+            eeg_types=[]):
+        
         self.root_dir = root_dir
         self.pts = pts
         self.start_idx = start_idx
         self.end_idx = end_idx
-        self.original_feats = original_feats
+        self.n_mel_channels = n_mel_channels
+        self.eeg_types = eeg_types
+
+        print("init() end_idx:", end_idx)
 
         info_dir = \
             os.path.join(
@@ -229,13 +238,13 @@ class KaraOneDataset(torch.utils.data.Dataset):
                 PATH_INBETWEEN,
                 pts[0],
                 f"kinect_data/")
-
+        
         with open(os.path.join(info_dir, f"{pts[0]}_p.txt")) as f:
             self.labels = f.read().split("\n")
             self.ids = range(len(self.labels))
             self.audios = [os.path.join(info_dir, f"{id_}.wav")
                             for id_ in self.ids]
-
+        
         base_dir = os.path.join(
             self.root_dir,
             PATH_INBETWEEN,
@@ -244,116 +253,94 @@ class KaraOneDataset(torch.utils.data.Dataset):
         for f in glob.glob(
             os.path.join(f"{base_dir}", "all_features_simple.mat")):
             prompts_to_extract = sio.loadmat(f)
-
+        
         self.prompts = prompts = prompts_to_extract['all_features'][0,0]
-        print("prompts:", len(self.prompts["prompts"][0]))
+
+        variable_names = ()
+        for eeg_type in eeg_types:
+            if eeg_type == "vocal":
+                variable_names += ("speaking_inds",)
+            elif eeg_type == "imagined":
+                variable_names += ("thinking_inds",)
 
         for f in glob.glob(
             os.path.join(f"{base_dir}", "epoch_inds.mat")):
             self.epoch_inds = epoch_inds = \
-                sio.loadmat(f, variable_names=
-                    ('clearing_inds', 'thinking_inds', 'speaking_inds'))
-
+                sio.loadmat(f, variable_names=variable_names)
+                    #('thinking_inds', 'speaking_inds'))
+        
         if raw:
             for f in glob.glob(
                 os.path.join(f"{base_dir}", "*.cnt")):
                 eeg_data = read_eeg(f)
-
+        
         self.eeg_data = eeg_data
 
         t0 = time()
 
         end_idx = end_idx if end_idx else len(self.prompts["prompts"][0])
+
+        print("init-2() end_idx:", end_idx)
+
         self.Y_s = Y_s = self.prompts["prompts"][0][start_idx:end_idx]
-        print("Actual Length:", len(self.prompts["prompts"][0]))
 
-        """
-        self.X_s_rest, self.X_s_rest_raw, self.X_s_rest_feats = \
-            calculate_features(
-                eeg_data,
-                epoch_inds,
-                prompts,
-                "clearing_inds",
-                Y_s,
-                original_feats,
-                end_idx,
-                start_idx)
-        """
+        if "imagined" in eeg_types:
+            self.X_s_active, self.X_s_active_raw, self.X_s_active_feats = \
+                calculate_features(
+                    eeg_data,
+                    epoch_inds,
+                    prompts,
+                    "thinking_inds",
+                    Y_s,
+                    start_idx,
+                    end_idx=end_idx)
+            self.X_s_active = np.asarray(self.X_s_active)
 
-        self.X_s_active, self.X_s_active_raw, self.X_s_active_feats = \
-            calculate_features(
-                eeg_data,
-                epoch_inds,
-                prompts,
-                "thinking_inds",
-                Y_s,
-                original_feats,
-                end_idx,
-                start_idx)
-
-        self.X_s_vocal, self.X_s_vocal_raw, self.X_s_vocal_feats = \
-            calculate_features(
-                eeg_data,
-                epoch_inds,
-                prompts,
-                "speaking_inds",
-                Y_s,
-                original_feats,
-                end_idx,
-                start_idx)
-
-        # self.X_s_rest   = np.asarray(self.X_s_rest)
-        self.X_s_active = np.asarray(self.X_s_active)
-        self.X_s_vocal  = np.asarray(self.X_s_vocal)
-
-        if scale_data:
-            """
-            self.X_s_rest["feature_value"] = \
-                StandardScaler().fit_transform(
-                    self.X_s_rest["feature_value"])
-            """
-            self.X_s_active["feature_value"] = \
-                StandardScaler().fit_transform(
-                    self.X_s_active["feature_value"])
-            self.X_s_vocal["feature_value"] = \
-                StandardScaler().fit_transform(
-                    self.X_s_vocal["feature_value"])
+        if "vocal" in eeg_types:
+            self.X_s_vocal, self.X_s_vocal_raw, self.X_s_vocal_feats = \
+                calculate_features(
+                    eeg_data,
+                    epoch_inds,
+                    prompts,
+                    "speaking_inds",
+                    Y_s,
+                    start_idx,
+                    end_idx=end_idx)
+            self.X_s_vocal  = np.asarray(self.X_s_vocal)
 
         self.Y_s = np.hstack(self.Y_s)
 
         print("Calc: %0.3fs" % (time() - t0))
-
+    
     def __getitem__(self, i):
-        original_feats = self.original_feats
+        n_mel_channels = self.n_mel_channels
+        eeg_types = self.eeg_types
 
         audio_raw, audio_features = \
-            load_audio(self.audios[self.start_idx:self.end_idx][i])
-
-        print(self.start_idx, self.end_idx, self.audios[self.start_idx:self.end_idx][i])
+            load_audio(self.audios[self.start_idx:self.end_idx][i],
+                       n_mel_channels)
 
         data = {
             "label":          self.Y_s[i],
             "audio_raw":      audio_raw,
-            "audio_feats":    audio_features,
-
-            # "eeg_rest_raw":   self.X_s_rest_raw[i],
-            "eeg_active_raw": self.X_s_active_raw[i],
-            "eeg_vocal_raw":  self.X_s_vocal_raw[i],
-
-            # "eeg_rest_feats":   self.X_s_rest_feats[i],
-            "eeg_active_feats": self.X_s_active_feats[i],
-            "eeg_vocal_feats":  self.X_s_vocal_feats[i],
+            "audio_feats":    audio_features
         }
 
-        if original_feats:
-            original_paper_feats = {
-                # "eeg_rest":       self.X_s_rest["feature_value"][i],
-                "eeg_active":     self.X_s_active["feature_value"][i],
-                "eeg_vocal":      self.X_s_vocal["feature_value"][i]
+        if "imagined" in eeg_types:
+            cur = {
+                "eeg_active_raw": self.X_s_active_raw[i],
+                "eeg_active_feats": self.X_s_active_feats[i],
             }
-            data = {**data, **original_paper_feats}
+            data = {**data, **cur}
 
+        if "vocal" in eeg_types:
+            cur = {
+                "eeg_vocal_raw":  self.X_s_vocal_raw[i],
+                "eeg_vocal_feats":  self.X_s_vocal_feats[i]
+            }
+            data = {**data, **cur}
+            
         return data
-    
+
     def __len__(self):
         return len(self.Y_s)
