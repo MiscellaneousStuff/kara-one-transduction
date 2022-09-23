@@ -97,77 +97,61 @@ def read_eeg(eeg_path, channels_only=[], drop_channels=DROP_CHANNELS):
     print("EEG_RAW:", eeg_raw)
     return eeg_raw
 
-def load_utterance(eeg_data, powerline_freq=60):
-    eeg = []
-
-    for eeg_channel in range(eeg_data.shape[0]):
-        x = eeg_data[eeg_channel, :]
-        x = notch_harmonics(x, powerline_freq, 1000)
-        x = remove_drift(x, 1000)
-        x = subsample(x, 600, 1000)
-        eeg.append(x)
-
-    eeg = np.stack(eeg, 1)
-    return eeg
-
-def get_semg_feats(eeg_data, stft=False, debug=False):
-    xs = eeg_data - eeg_data.mean(axis=0, keepdims=True)
-    frame_features = []
-    for i in range(eeg_data.shape[1]):
-        x = xs[:, i]
-        w = double_average(x)
-        p = x - w
-        r = np.abs(p)
-
-        w_h = librosa.util.frame(w, frame_length=16, hop_length=6).mean(axis=0)
-        p_w = librosa.feature.rms(w, frame_length=16, hop_length=6, center=False)
-        p_w = np.squeeze(p_w, 0)
-        p_r = librosa.feature.rms(r, frame_length=16, hop_length=6, center=False)
-        p_r = np.squeeze(p_r, 0)
-        z_p = librosa.feature.zero_crossing_rate(p, frame_length=16, hop_length=6, center=False)
-        z_p = np.squeeze(z_p, 0)
-        r_h = librosa.util.frame(r, frame_length=16, hop_length=6).mean(axis=0)
-
-        if stft:
-            s = abs(librosa.stft(np.ascontiguousarray(x), n_fft=16, hop_length=6, center=False))
-
-        if debug:
-            plt.subplot(7,1,1)
-            plt.plot(x)
-            plt.subplot(7,1,2)
-            plt.plot(w_h)
-            plt.subplot(7,1,3)
-            plt.plot(p_w)
-            plt.subplot(7,1,4)
-            plt.plot(p_r)
-            plt.subplot(7,1,5)
-            plt.plot(z_p)
-            plt.subplot(7,1,6)
-            plt.plot(r_h)
-
-            plt.subplot(7,1,7)
-            plt.imshow(s, origin='lower', aspect='auto', interpolation='nearest')
-
-            plt.show()
-
-        frame_features.append(np.stack([w_h, p_w, p_r, z_p, r_h], axis=1))
-        if stft:
-            frame_features.append(s.T)
+def get_semg_feats(eeg_channel, stft=False, debug=False):
+    xs = eeg_channel - eeg_channel.mean(axis=0, keepdims=True)
     
-    frame_features = np.concatenate(frame_features, axis=1)
-    return frame_features.astype(np.float32)
+    x = xs
+    w = double_average(x)
+    p = x - w
+    r = np.abs(p)
+
+    w_h = librosa.util.frame(w, frame_length=16, hop_length=6).mean(axis=0)
+    p_w = librosa.feature.rms(w, frame_length=16, hop_length=6, center=False)
+    p_w = np.squeeze(p_w, 0)
+    p_r = librosa.feature.rms(r, frame_length=16, hop_length=6, center=False)
+    p_r = np.squeeze(p_r, 0)
+    z_p = librosa.feature.zero_crossing_rate(p, frame_length=16, hop_length=6, center=False)
+    z_p = np.squeeze(z_p, 0)
+    r_h = librosa.util.frame(r, frame_length=16, hop_length=6).mean(axis=0)
+
+    if stft:
+        s = abs(librosa.stft(np.ascontiguousarray(x), n_fft=16, hop_length=6, center=False))
+
+    if debug:
+        plt.subplot(7,1,1)
+        plt.plot(x)
+        plt.subplot(7,1,2)
+        plt.plot(w_h)
+        plt.subplot(7,1,3)
+        plt.plot(p_w)
+        plt.subplot(7,1,4)
+        plt.plot(p_r)
+        plt.subplot(7,1,5)
+        plt.plot(z_p)
+        plt.subplot(7,1,6)
+        plt.plot(r_h)
+
+        plt.subplot(7,1,7)
+        plt.imshow(s, origin='lower', aspect='auto', interpolation='nearest')
+
+        plt.show()
+    
+    channel_features = [w_h, p_w, p_r, z_p, r_h]
+
+    if stft:
+        channel_features.extend(s.T)
+
+    # channel_features = np.asarray(channel_features, dtype=np.float32)
+    return channel_features
 
 def calculate_features(eeg_data, epoch_inds, prompts, condition_inds, prompts_list, \
-                       original_feats=False, end_idx=0, start_idx=0):
+                       end_idx=0, start_idx=0, powerline_freq=60, raw_only=False):
     offset  = int(eeg_data.info["sfreq"] / 2)
-    X       = []
     X_raw   = []
+    X_feats = []
     end_idx = end_idx if end_idx else len(prompts["prompts"][0])
 
     max_raw_size = 0
-    print("calc feat prompts:", len(prompts["prompts"][0]))
-    print(len(prompts["prompts"][0][start_idx:end_idx]))
-    print("end_idx:", end_idx)
 
     for i, prompt in enumerate(prompts["prompts"][0][start_idx:end_idx]):
         if prompt[0] in prompts_list:
@@ -180,34 +164,26 @@ def calculate_features(eeg_data, epoch_inds, prompts, condition_inds, prompts_li
                 epoch = eeg_data[idx][0][0][start:end]
                 if epoch.shape[0] > max_raw_size:
                     max_raw_size = epoch.shape[0]
-                #print(ch, epoch)
-                #print(ch, "shape:", epoch.shape)
-                if original_feats:
-                    channel_set.extend(fast_feat_array(epoch, ch))
-                channel_set_raw.extend(epoch)
-            # print("channel count:", len(eeg_data.ch_names), len(channel_set))
-            X.append(channel_set)
+
+                epoch     = notch_harmonics(epoch, powerline_freq, 1000)
+                epoch     = remove_drift(epoch, 1000)
+
+                eeg_raw   = subsample(epoch, 800, 1000)
+
+                if not raw_only:
+                    eeg_feats = subsample(epoch, 600, 1000)
+                    eeg_feats = get_semg_feats(eeg_feats)
+                else:
+                    eeg_feats = []
+
+                channel_set.extend(eeg_feats)
+                channel_set_raw.append(eeg_raw)
+            
+            X_feats.append(channel_set)
             X_raw.append(channel_set_raw)
             print("Calc: %0.3fs" % (time() - t0), i, prompt)
 
-    new_X_raw = []
-    X_feats = []
-
-    for cur in X_raw:
-        seq_len = int(len(cur) / 62)
-
-        # Cur raw, split into 62 channels
-        cleaned_raw_eeg = np.reshape(cur, (62, seq_len))
-        cleaned_raw_eeg = load_utterance(cleaned_raw_eeg)
-        new_X_raw.append(cleaned_raw_eeg)
-
-        # Using sEMG Silent Speech hand-crafted features
-        X_feat = get_semg_feats(cleaned_raw_eeg)
-        X_feats.append(X_feat)
-
-    X_raw = new_X_raw
-
-    return X, X_raw, X_feats
+    return X_raw, X_feats
 
 
 class KaraOneDataset(torch.utils.data.Dataset):
@@ -217,11 +193,12 @@ class KaraOneDataset(torch.utils.data.Dataset):
             self,
             root_dir,
             pts=("MM05",),
-            raw=True,
+            raw_only=False,
             start_idx=0,
             end_idx=0,
             n_mel_channels=128,
-            eeg_types=[]):
+            eeg_types=[],
+            channels_only=[]):
         
         self.root_dir = root_dir
         self.pts = pts
@@ -269,10 +246,9 @@ class KaraOneDataset(torch.utils.data.Dataset):
                 sio.loadmat(f, variable_names=variable_names)
                     #('thinking_inds', 'speaking_inds'))
         
-        if raw:
-            for f in glob.glob(
-                os.path.join(f"{base_dir}", "*.cnt")):
-                eeg_data = read_eeg(f)
+        for f in glob.glob(
+            os.path.join(f"{base_dir}", "*.cnt")):
+            eeg_data = read_eeg(f, channels_only)
         
         self.eeg_data = eeg_data
 
@@ -285,28 +261,32 @@ class KaraOneDataset(torch.utils.data.Dataset):
         self.Y_s = Y_s = self.prompts["prompts"][0][start_idx:end_idx]
 
         if "imagined" in eeg_types:
-            self.X_s_active, self.X_s_active_raw, self.X_s_active_feats = \
+            self.X_s_active_raw, self.X_s_active_feats = \
                 calculate_features(
                     eeg_data,
                     epoch_inds,
                     prompts,
                     "thinking_inds",
                     Y_s,
-                    start_idx,
+                    start_idx=start_idx,
+                    raw_only=raw_only,
                     end_idx=end_idx)
-            self.X_s_active = np.asarray(self.X_s_active)
+            self.X_s_active_raw = np.asarray(self.X_s_active_raw)
+            self.X_s_active_feats = np.asarray(self.X_s_active_feats)
 
         if "vocal" in eeg_types:
-            self.X_s_vocal, self.X_s_vocal_raw, self.X_s_vocal_feats = \
+            self.X_s_vocal_raw, self.X_s_vocal_feats = \
                 calculate_features(
                     eeg_data,
                     epoch_inds,
                     prompts,
                     "speaking_inds",
                     Y_s,
-                    start_idx,
+                    start_idx=start_idx,
+                    raw_only=raw_only,
                     end_idx=end_idx)
-            self.X_s_vocal  = np.asarray(self.X_s_vocal)
+            self.X_s_vocal_raw = np.asarray(self.X_s_vocal_raw)
+            self.X_s_vocal_feats = np.asarray(self.X_s_vocal_feats)
 
         self.Y_s = np.hstack(self.Y_s)
 
@@ -321,22 +301,22 @@ class KaraOneDataset(torch.utils.data.Dataset):
                        n_mel_channels)
 
         data = {
-            "label":          self.Y_s[i],
-            "audio_raw":      audio_raw,
-            "audio_feats":    audio_features
+            "label":       self.Y_s[i],
+            "audio_raw":   audio_raw,
+            "audio_feats": audio_features
         }
 
         if "imagined" in eeg_types:
             cur = {
-                "eeg_active_raw": self.X_s_active_raw[i],
-                "eeg_active_feats": self.X_s_active_feats[i],
+                "eeg_active_raw":   np.transpose(self.X_s_active_raw[i], (1, 0)),
+                "eeg_active_feats": np.transpose(self.X_s_active_feats[i], (1, 0)),
             }
             data = {**data, **cur}
 
         if "vocal" in eeg_types:
             cur = {
-                "eeg_vocal_raw":  self.X_s_vocal_raw[i],
-                "eeg_vocal_feats":  self.X_s_vocal_feats[i]
+                "eeg_vocal_raw":   np.transpose(self.X_s_vocal_raw[i], (1, 0)),
+                "eeg_vocal_feats": np.transpose(self.X_s_vocal_feats[i], (1, 0)),
             }
             data = {**data, **cur}
             
