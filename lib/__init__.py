@@ -276,7 +276,7 @@ class FEISDataset(torch.utils.data.Dataset):
         label = self.labels[index]
         
         audio_path = self.audio_dir + label + ".wav"
-        audio_raw, audio_features = \
+        audio_raw, audio_feats = \
             load_audio(audio_path,
                        self.n_mel_channels,
                        hop_length=188) # over ride hop length
@@ -284,7 +284,7 @@ class FEISDataset(torch.utils.data.Dataset):
         data = {
             "label": label,
             "audio_raw": audio_raw,
-            "audio_features": audio_features,
+            "audio_feats": audio_feats,
             "eeg_raw": eeg_raw,
             "eeg_feats": eeg_feats
         }
