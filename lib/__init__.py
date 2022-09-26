@@ -50,6 +50,9 @@ DEFAULT_CHANNELS = [
 DROP_CHANNELS = [
     'CB1', 'CB2', 'VEO', 'HEO', 'EKG', 'EMG', 'Trigger']
 
+FEIS_CHANNELS = [
+    'F3', 'FC5', 'AF3', 'F7', 'T7', 'P7', 'O1', 'O2', 'P8', 'T8', 'F8', 'AF4', 'FC6', 'F4']
+
 def remove_drift(signal, fs):
     b, a = scipy.signal.butter(3, 2, 'highpass', fs=fs)
     return scipy.signal.filtfilt(b, a, signal)
@@ -100,6 +103,53 @@ def read_eeg(eeg_path, channels_only=[], drop_channels=DROP_CHANNELS):
         eeg_raw.pick_channels(channels_only)
     print("EEG_RAW:", eeg_raw)
     return eeg_raw
+
+def get_semg_feats_orig(eeg_data, hop_length=6, frame_length=16, stft=False, debug=False):
+    xs = eeg_data - eeg_data.mean(axis=0, keepdims=True)
+    frame_features = []
+    for i in range(eeg_data.shape[1]):
+        x = xs[:, i]
+        w = double_average(x)
+        p = x - w
+        r = np.abs(p)
+
+        w_h = librosa.util.frame(w, frame_length=frame_length, hop_length=hop_length).mean(axis=0)
+        p_w = librosa.feature.rms(w, frame_length=frame_length, hop_length=hop_length, center=False)
+        p_w = np.squeeze(p_w, 0)
+        p_r = librosa.feature.rms(r, frame_length=frame_length, hop_length=hop_length, center=False)
+        p_r = np.squeeze(p_r, 0)
+        z_p = librosa.feature.zero_crossing_rate(p, frame_length=frame_length, hop_length=hop_length, center=False)
+        z_p = np.squeeze(z_p, 0)
+        r_h = librosa.util.frame(r, frame_length=frame_length, hop_length=hop_length).mean(axis=0)
+
+        if stft:
+            s = abs(librosa.stft(np.ascontiguousarray(x), n_fft=frame_length, hop_length=hop_length, center=False))
+
+        if debug:
+            plt.subplot(7,1,1)
+            plt.plot(x)
+            plt.subplot(7,1,2)
+            plt.plot(w_h)
+            plt.subplot(7,1,3)
+            plt.plot(p_w)
+            plt.subplot(7,1,4)
+            plt.plot(p_r)
+            plt.subplot(7,1,5)
+            plt.plot(z_p)
+            plt.subplot(7,1,6)
+            plt.plot(r_h)
+
+            plt.subplot(7,1,7)
+            plt.imshow(s, origin='lower', aspect='auto', interpolation='nearest')
+
+            plt.show()
+
+        frame_features.append(np.stack([w_h, p_w, p_r, z_p, r_h], axis=1))
+        if stft:
+            frame_features.append(s.T)
+
+    frame_features = np.concatenate(frame_features, axis=1)
+    return frame_features.astype(np.float32)
 
 def get_semg_feats(eeg_channel, stft=False, debug=False):
     xs = eeg_channel - eeg_channel.mean(axis=0, keepdims=True)
@@ -192,33 +242,53 @@ def calculate_features(eeg_data, epoch_inds, prompts, condition_inds, prompts_li
 
 class FEISDataset(torch.utils.data.Dataset):
     num_features = 14 * 5 # (electrodes * features_per_electrode)
+    channels = FEIS_CHANNELS
 
-    def __init__(self, csv_path, audio_path, n_mel_channels=80):
+    def __init__(self,
+                 csv_path,
+                 audio_dir,
+                 n_mel_channels=80):
         self.csv_path = csv_path
-        self.audio_path = audio_path
         self.n_mel_channels = n_mel_channels
-        self.data = pd.read_csv(csv_path, header=None)
-        self.audio_path = audio_path
+        self.data = pd.read_csv(csv_path, header=0)
+        self.audio_dir = audio_dir
 
-    def __len__(self): # no. of samples
-        return len(self.data)
+        # Get epoch idxs
+        epoch_start_df = \
+            self.data.drop_duplicates(subset=["Epoch"])
+        self.epoch_idxs = list(self.data.drop_duplicates(subset=["Epoch"]).index)
+        
+        # Get labels
+        self.labels = list(epoch_start_df["Label"])
+
+    def __len__(self):
+        return len(self.epoch_idxs)
     
-    def __getitem__(self, index): # as ndarray
-        index = 1 # Goose, first
+    def __getitem__(self, index):
+        a, b = self.epoch_idxs[index], \
+            self.epoch_idxs[index+1]
+        
+        eeg       = self.data.iloc[a:b, 2:2+14]
+        eeg       = remove_drift(eeg, 256)
+        eeg_raw   = eeg
+        eeg_feats = get_semg_feats_orig(eeg, hop_length=3, frame_length=8)
 
-        data = self.data.iloc[index, 1:]
-        label = self.data.iloc[index, -3]
-
+        label = self.labels[index]
+        
+        audio_path = self.audio_dir + label + ".wav"
         audio_raw, audio_features = \
-            load_audio(self.audio_path,
-                       self.n_mel_channels)
-
+            load_audio(audio_path,
+                       self.n_mel_channels,
+                       hop_length=188) # over ride hop length
+        
         data = {
             "label": label,
             "audio_raw": audio_raw,
-            "audio_features": audio_features
+            "audio_features": audio_features,
+            "eeg_raw": eeg_raw,
+            "eeg_feats": eeg_feats
         }
-
+        
         return data
 
 
