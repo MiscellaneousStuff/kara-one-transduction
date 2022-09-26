@@ -34,6 +34,7 @@ import mne
 import librosa
 import scipy
 
+import pandas as pd
 import soundfile as sf
 import scipy.io as sio
 
@@ -74,7 +75,10 @@ def load_audio(fname,
                win_length=432,
                hop_length=160):
     audio, r = sf.read(fname)
-    assert r == 16000
+    if r != 16_000:
+        audio = librosa.resample(audio, orig_sr = r, target_sr = 16_000)
+        r = 16_000
+    assert r == 16_000
 
     audio_features = librosa.feature.melspectrogram(
         audio,
@@ -184,6 +188,38 @@ def calculate_features(eeg_data, epoch_inds, prompts, condition_inds, prompts_li
             print("Calc: %0.3fs" % (time() - t0), i, prompt)
 
     return X_raw, X_feats
+
+
+class FEISDataset(torch.utils.data.Dataset):
+    num_features = 14 * 5 # (electrodes * features_per_electrode)
+
+    def __init__(self, csv_path, audio_path, n_mel_channels=80):
+        self.csv_path = csv_path
+        self.audio_path = audio_path
+        self.n_mel_channels = n_mel_channels
+        self.data = pd.read_csv(csv_path, header=None)
+        self.audio_path = audio_path
+
+    def __len__(self): # no. of samples
+        return len(self.data)
+    
+    def __getitem__(self, index): # as ndarray
+        index = 1 # Goose, first
+
+        data = self.data.iloc[index, 1:]
+        label = self.data.iloc[index, -3]
+
+        audio_raw, audio_features = \
+            load_audio(self.audio_path,
+                       self.n_mel_channels)
+
+        data = {
+            "label": label,
+            "audio_raw": audio_raw,
+            "audio_features": audio_features
+        }
+
+        return data
 
 
 class KaraOneDataset(torch.utils.data.Dataset):
@@ -314,6 +350,8 @@ class KaraOneDataset(torch.utils.data.Dataset):
             data = {**data, **cur}
 
         if "vocal" in eeg_types:
+            print("[i] X_s_vocal_raw.shape:", self.X_s_vocal_raw.shape)
+            print("[i] X_s_vocal_feats.shape:", self.X_s_vocal_feats.shape)
             cur = {
                 "eeg_vocal_raw":   np.transpose(self.X_s_vocal_raw[i], (1, 0)),
                 "eeg_vocal_feats": np.transpose(self.X_s_vocal_feats[i], (1, 0)),
