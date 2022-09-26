@@ -264,6 +264,14 @@ class FEISDataset(torch.utils.data.Dataset):
     def __len__(self):
         return len(self.epoch_idxs)
     
+    def get_label_idxs(self, target_label):
+        if target_label in self.labels:
+            return [i for i in range(len(self.labels))
+                    if target_label == self.labels[i]]
+        else:
+            ValueError(\
+                f"Attempting to get label {target_label} which does not exist.")
+
     def __getitem__(self, index):
         a, b = self.epoch_idxs[index], \
             self.epoch_idxs[index+1]
