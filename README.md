@@ -1,8 +1,22 @@
-# Kara One Dataset - Transduction
+# EEG Imagined Speech - Transduction
 
 ## About
 
 Assessing the feasibility of applying SOTA sEMG silent speech transduction methods to EEG imagined speech synthesis.
+
+## FEIS Dataset
+Dataset Emotiv EPOC+ 14-Channel Wireless EEG headset. Combines EEG and audio
+during imagined and vocalised phonemes. Contains English and Chinese data.
+
+### Progress
+
+Below milestones are for participant 01.
+- [x] Synthesize stimuli, vocal and imagined speech across multiple phonemes
+   - 2 heads, 8 layers TransformerEncoder works very well
+     (stimuli and vocal work extremely well and surprisingly, imagined speech
+      synthesis shows promise. This might be working better on this dataset
+      due to the emphasis on temporal alignment during the experimental
+      condition).
 
 ## Kara One
 
@@ -13,7 +27,7 @@ vocalised phonemic and single-word prompts.
 
 [Dataset](http://www.cs.toronto.edu/~complingweb/data/karaOne/karaOne.html)
 
-## Progress
+### Progress
 
 Below milestones are for MM05:
 - [x] Overfit on a single example (EEG imagined speech)
@@ -54,16 +68,16 @@ Below milestones are for MM05:
        temporal and spatial accuracy. Last thing after this would be using ResNet blocks
        to learn EEG features end-to-end )
 
-## Dataset Details
+### Dataset Details
 
-### Epochs
+#### Epochs
 
 EEG epoching is a procedure where specific time-windows are extracted
 from a continuous EEG signal. These time windows are called "epochs"
 and are usually time-locked with respect to an event, e.g. a visual stimulus
 or in the case of this dataset, imagined speech.
 
-### Citation (BibTeX)
+#### Citation (BibTeX)
 
 ```tex
 @INPROCEEDINGS{7178118,
