@@ -8,6 +8,9 @@ Assessing the feasibility of applying SOTA sEMG silent speech transduction metho
 Dataset Emotiv EPOC+ 14-Channel Wireless EEG headset. Combines EEG and audio
 during imagined and vocalised phonemes. Contains English and Chinese data.
 
+Experimental runs:
+[Public Neptune.ai](https://app.neptune.ai/miscellaneousstuff/imagined-speech-feis/experiments?split=tbl&dash=charts&viewId=9760c3bc-4c53-41e5-82c6-9764b1aa3d61)
+
 ### Progress
 
 Below milestones are for participant 01.
